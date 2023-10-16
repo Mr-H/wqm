@@ -1,0 +1,19 @@
+openapi: 3.0.0
+info:
+  title: Work Queue Manager API
+  description: Servics to abstract the work queue manager
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /:
+    get:
+      summary: A summary of the endpoint
+      description: A description of the endpoint
+      responses:
+        '200':
+          description: A successful response
+        '400':
+          description: A bad request
+        '500':
+          description: An internal server error
