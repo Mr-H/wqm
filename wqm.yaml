@@ -6,14 +6,88 @@ info:
 servers:
   - url: http://localhost:8000
 paths:
-  /:
+  /wqm/queues:
     get:
-      summary: A summary of the endpoint
-      description: A description of the endpoint
+      summary: Get all work queues
+      description: Retrieve a list of all queues
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of queues to return
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
       responses:
-        '200':
+        "200":
           description: A successful response
-        '400':
-          description: A bad request
-        '500':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Queue"
+        "500":
+          description: An internal server error
+    post:
+      summary: Create a new work queue
+      description: Create a new work queue with the specified name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the new work queue
+                  example: my-queue
+                description:
+                  type: string
+                  description: A description of the new work queue
+                  example: This is my new work queue
+      responses:
+        "201":
+          description: The work queue was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Queue"
+        "400":
+          description: The request was invalid
+        "500":
+          description: An internal server error
+  /wqm/queues/{queue_id}/items:
+    get:
+      summary: Get items from a work queue
+      description: Retrieve items from a specific work queue
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue to retrieve items from
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueueItem"
+        "404":
+          description: The specified work queue was not found
+        "500":
           description: An internal server error
