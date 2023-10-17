@@ -10,11 +10,13 @@ paths:
     get:
       summary: Get all work queues
       description: Retrieve a list of all queues
+      tags:
+        - Work Queues
       parameters:
         - name: limit
           in: query
           description: The maximum number of queues to return
-          required: true
+          required: false
           schema:
             type: integer
             minimum: 1
@@ -33,6 +35,8 @@ paths:
     post:
       summary: Create a new work queue
       description: Create a new work queue with the specified name
+      tags:
+        - Work Queues
       requestBody:
         required: true
         content:
@@ -59,35 +63,249 @@ paths:
           description: The request was invalid
         "500":
           description: An internal server error
-  /wqm/queues/{queue_id}/items:
-    get:
-      summary: Get items from a work queue
-      description: Retrieve items from a specific work queue
+    put:
+      summary: Update an existing work queue
+      description: Update an existing work queue with the specified ID
+      tags:
+        - Work Queues
       parameters:
         - name: queue_id
           in: path
-          description: The ID of the work queue to retrieve items from
+          description: The ID of the work queue to update
           required: true
           schema:
-            type: string
-        - name: limit
-          in: query
-          description: The maximum number of items to return
-          required: false
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The new name of the work queue
+                  example: my-updated-queue
+                description:
+                  type: string
+                  description: The new description of the work queue
+                  example: This is my updated work queue
+      responses:
+        "200":
+          description: The work queue was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Queue"
+        "400":
+          description: The request was invalid
+        "404":
+          description: The work queue was not found
+        "500":
+          description: An internal server error
+    delete:
+      summary: Soft delete an existing work queue
+      description: Soft delete an existing work queue with the specified ID
+      tags:
+        - Work Queues
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue to delete
+          required: true
           schema:
             type: integer
-            minimum: 1
-            maximum: 100
+      responses:
+        "204":
+          description: The work queue was deleted successfully
+        "404":
+          description: The work queue was not found
+        "500":
+          description: An internal server error
+
+  /wqm/queues/{queue_id}/items:
+    get:
+      summary: Get a work queue item
+      description: Retrieve a work queue item by its ID
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: query
+          description: The ID of the work queue item
+          required: true
+          schema:
+            type: integer
       responses:
         "200":
           description: A successful response
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/QueueItem"
+                $ref: "#/components/schemas/QueueItem"
         "404":
-          description: The specified work queue was not found
+          description: The work queue item was not found
         "500":
           description: An internal server error
+
+    post:
+      summary: Add a new work queue item
+      description: Add a new work queue item to the specified queue
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue to add the item to
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the new queue item
+                  example: my-new-queue-item
+                description:
+                  type: string
+                  description: A description of the new queue item
+                  example: This is my new work queue item
+              required:
+                - name
+      responses:
+        "201":
+          description: The work queue item was added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueueItem"
+        "400":
+          description: The request was invalid
+        "404":
+          description: The work queue was not found
+        "500":
+          description: An internal server error
+
+    put:
+      summary: Update an existing work queue item
+      description: Update an existing work queue item with the specified ID
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue that the item belongs to
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: query
+          description: The ID of the work queue item to update
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The new name of the work queue item
+                  example: my-updated-queue-item
+                description:
+                  type: string
+                  description: The new description of the work queue item
+                  example: This is my updated work queue item
+              required:
+                - name
+      responses:
+        "200":
+          description: The work queue item was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueueItem"
+        "400":
+          description: The request was invalid
+        "404":
+          description: The work queue item was not found
+        "500":
+          description: An internal server error
+
+    delete:
+      summary: Soft delete an existing work queue item
+      description: Soft delete an existing work queue item with the specified ID
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue that the item belongs to
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: query
+          description: The ID of the work queue item to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: The work queue item was deleted successfully
+        "404":
+          description: The work queue item was not found
+        "500":
+          description: An internal server error
+
+
+
+
+components:
+  schemas:
+    Queue:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the queue
+          example: 1
+        name:
+          type: string
+          description: The name of the queue
+          example: my-queue
+        description:
+          type: string
+          description: A description of the queue
+          example: This is my new work queue
+    QueueItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the work queue item
+          example: 1
+        name:
+          type: string
+          description: The name of the work queue item
+          example: my-work-item
+        description:
+          type: string
+          description: A description of the work queue item
+          example: This is my new work queue item
+  
+  
