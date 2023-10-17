@@ -8,8 +8,8 @@ servers:
 paths:
   /wqm/queues:
     get:
-      summary: Get all work queues
-      description: Retrieve a list of all queues
+      summary: Get a list of all work queues
+      description: Retrieve a list of all queue IDs and Names
       tags:
         - Work Queues
       parameters:
@@ -34,7 +34,7 @@ paths:
           description: An internal server error
     post:
       summary: Create a new work queue
-      description: Create a new work queue with the specified name
+      description: Create a new work queue with the specified name and description
       tags:
         - Work Queues
       requestBody:
@@ -63,6 +63,7 @@ paths:
           description: The request was invalid
         "500":
           description: An internal server error
+  /wqm/queues/{queue_id}:  
     put:
       summary: Update an existing work queue
       description: Update an existing work queue with the specified ID
@@ -125,8 +126,8 @@ paths:
 
   /wqm/queues/{queue_id}/items:
     get:
-      summary: Get a work queue item
-      description: Retrieve a work queue item by its ID
+      summary: Get a list of open work queue items
+      description: Retrieve all open work queue item by queue ID
       tags:
         - Work Items
       parameters:
@@ -153,10 +154,10 @@ paths:
           description: The work queue item was not found
         "500":
           description: An internal server error
-
+  
     post:
-      summary: Add a new work queue item
-      description: Add a new work queue item to the specified queue
+      summary: Add a new work queue item on the specified queue
+      description: Add a new work queue itemt on the specified queue by queue ID
       tags:
         - Work Items
       parameters:
@@ -196,10 +197,41 @@ paths:
           description: The work queue was not found
         "500":
           description: An internal server error
+  /wqm/queues/{queue_id}/items/lock:
+    get:
+      summary: Get a list of locked work queue items
+      description: Retrieve all locked work queue item by queue ID
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: query
+          description: The ID of the work queue item
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueueItem"
+        "404":
+          description: The work queue item was not found
+        "500":
+          description: An internal server error
 
+  /wqm/items/{item_id}:
     put:
       summary: Update an existing work queue item
-      description: Update an existing work queue item with the specified ID
+      description: Update an existing work queue item with the specified item ID
       tags:
         - Work Items
       parameters:
@@ -248,7 +280,7 @@ paths:
 
     delete:
       summary: Soft delete an existing work queue item
-      description: Soft delete an existing work queue item with the specified ID
+      description: Soft delete an existing work queue item with the specified item ID
       tags:
         - Work Items
       parameters:
@@ -272,8 +304,88 @@ paths:
         "500":
           description: An internal server error
 
+  /wqm/items/{item_id}/lock:
+    put:
+      summary: Toggle work queue item lock
+      description: Toggle work queue item with the specified item ID
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue that the item belongs to
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: query
+          description: The ID of the work queue item to update
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The new name of the work queue item
+                  example: my-updated-queue-item
+                description:
+                  type: string
+                  description: The new description of the work queue item
+                  example: This is my updated work queue item
+              required:
+                - name
+      responses:
+        "200":
+          description: The work queue item was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueueItem"
+        "400":
+          description: The request was invalid
+        "404":
+          description: The work queue item was not found
+        "500":
+          description: An internal server error
 
-
+  /wqm/items/search:
+    get:
+      summary: Search for work items
+      description: Search for work items by name or description
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: query
+          description: The ID of the work queue to search in
+          required: true
+          schema:
+            type: integer
+        - name: search_query
+          in: query
+          description: The search query to use
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The search results were retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueueItem"
+        "400":
+          description: The request was invalid
+        "500":
+          description: An internal server error
 
 components:
   schemas:
