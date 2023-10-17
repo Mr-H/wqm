@@ -197,6 +197,37 @@ paths:
           description: The work queue was not found
         "500":
           description: An internal server error
+  /wqm/queues/{queue_id}/items/next:
+    get:
+      summary: Get next open work queue items by queue type
+      description: Retrieve next open work queue item by queue ID based on queue type. This will also lock the item so it will not be selected again.
+      tags:
+        - Work Items
+      parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: query
+          description: The ID of the work queue item
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueueItem"
+        "404":
+          description: The work queue item was not found
+        "500":
+          description: An internal server error
+
   /wqm/queues/{queue_id}/items/lock:
     get:
       summary: Get a list of locked work queue items
@@ -399,11 +430,15 @@ components:
         name:
           type: string
           description: The name of the queue
-          example: my-queue
+          example: a-queue
         description:
           type: string
           description: A description of the queue
-          example: This is my new work queue
+          example: This is a new work queue
+        queue_type:
+          type: string
+          description: The queue read order LIFO or FIFO or NONE
+          example: FIFO
     QueueItem:
       type: object
       properties:
