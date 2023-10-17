@@ -137,12 +137,6 @@ paths:
           required: true
           schema:
             type: integer
-        - name: item_id
-          in: query
-          description: The ID of the work queue item
-          required: true
-          schema:
-            type: integer
       responses:
         "200":
           description: A successful response
@@ -210,12 +204,6 @@ paths:
           required: true
           schema:
             type: integer
-        - name: item_id
-          in: query
-          description: The ID of the work queue item
-          required: true
-          schema:
-            type: integer
       responses:
         "200":
           description: A successful response
@@ -241,12 +229,6 @@ paths:
           required: true
           schema:
             type: integer
-        - name: item_id
-          in: query
-          description: The ID of the work queue item
-          required: true
-          schema:
-            type: integer
       responses:
         "200":
           description: A successful response
@@ -266,14 +248,8 @@ paths:
       tags:
         - Work Items
       parameters:
-        - name: queue_id
-          in: path
-          description: The ID of the work queue that the item belongs to
-          required: true
-          schema:
-            type: integer
         - name: item_id
-          in: query
+          in: path
           description: The ID of the work queue item to update
           required: true
           schema:
@@ -315,14 +291,8 @@ paths:
       tags:
         - Work Items
       parameters:
-        - name: queue_id
-          in: path
-          description: The ID of the work queue that the item belongs to
-          required: true
-          schema:
-            type: integer
         - name: item_id
-          in: query
+          in: path
           description: The ID of the work queue item to delete
           required: true
           schema:
@@ -342,14 +312,8 @@ paths:
       tags:
         - Work Items
       parameters:
-        - name: queue_id
-          in: path
-          description: The ID of the work queue that the item belongs to
-          required: true
-          schema:
-            type: integer
         - name: item_id
-          in: query
+          in: path
           description: The ID of the work queue item to update
           required: true
           schema:
@@ -395,7 +359,7 @@ paths:
         - name: queue_id
           in: query
           description: The ID of the work queue to search in
-          required: true
+          required: false
           schema:
             type: integer
         - name: search_query
@@ -423,7 +387,7 @@ components:
     Queue:
       type: object
       properties:
-        id:
+        queue_id:
           type: integer
           description: The unique identifier for the queue
           example: 1
@@ -442,7 +406,7 @@ components:
     QueueItem:
       type: object
       properties:
-        id:
+        item_id:
           type: integer
           description: The unique identifier for the work queue item
           example: 1
