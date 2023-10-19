@@ -6,6 +6,7 @@ info:
 servers:
   - url: http://localhost:8000
 paths:
+# Work Queues
   /wqm/queues:
     get:
       summary: Get a list of all work queues
@@ -13,14 +14,43 @@ paths:
       tags:
         - Work Queues
       parameters:
-        - name: limit
+        - name: per_page
           in: query
-          description: The maximum number of queues to return
+          description: The number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 100
+            default: 20
+        - name: page
+          in: query
+          description: The number of the page
           required: false
           schema:
             type: integer
             minimum: 1
             maximum: 100
+            default: 1
+        - name: queue_type
+          in: query
+          description: The type of the queue (LIFO, FIFO, NONE)
+          required: false
+          schema:
+            type: string
+            enum:
+              - LIFO
+              - FIFO
+              - NONE
+        - name: status
+          in: query
+          description: Status of the queues (ACTIVE, DELETED)
+          required: false
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - DELETED
       responses:
         "200":
           description: A successful response
@@ -47,11 +77,24 @@ paths:
                 name:
                   type: string
                   description: The name of the new work queue
-                  example: my-queue
+                  example: a-queue
                 description:
                   type: string
                   description: A description of the new work queue
                   example: This is my new work queue
+                queue_type:
+                  type: string
+                  description: The type of the queue (LIFO, FIFO, NONE)
+                  example: LIFO
+                statue:
+                  type: string
+                  description: The status of the new work queue
+                  example: ACTIVE
+              required:
+                - name
+                - description
+                - queue_type
+                - status
       responses:
         "201":
           description: The work queue was created successfully
@@ -86,11 +129,19 @@ paths:
                 name:
                   type: string
                   description: The new name of the work queue
-                  example: my-updated-queue
+                  example: an-updated-queue
                 description:
                   type: string
                   description: The new description of the work queue
-                  example: This is my updated work queue
+                  example: This is an updated work queue
+                queue_type:
+                  type: string
+                  description: The type of the queue (LIFO, FIFO, NONE)
+                  example: LIFO
+                status: 
+                  type: string
+                  description: The new status of the work queue
+                  example: ACTIVE
       responses:
         "200":
           description: The work queue was updated successfully
@@ -112,7 +163,7 @@ paths:
       parameters:
         - name: queue_id
           in: path
-          description: The ID of the work queue to delete
+          description: The ID of the work queue, changing status to DELETED
           required: true
           schema:
             type: integer
@@ -123,7 +174,7 @@ paths:
           description: The work queue was not found
         "500":
           description: An internal server error
-
+# Work Items
   /wqm/queues/{queue_id}/items:
     get:
       summary: Get a list of open work queue items
@@ -137,18 +188,54 @@ paths:
           required: true
           schema:
             type: integer
+        - name: per_page
+          in: query
+          description: The number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: page
+          in: query
+          description: The number of the page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 1
+        - name: status
+          in: query
+          description: Status of the work items (OPEN, LOCKED, PROCESSED, DELETED)
+          required: true
+          schema:
+            type: string
+            enum:
+              - OPEN
+              - LOCKED
+              - PROCESSED
+              - DELETED
+        - name: lock
+          in: query
+          description: Lock work item(s) (LOCK)
+          required: false
+          schema:
+            type: string
+            enum:
+              - LOCK
       responses:
         "200":
           description: A successful response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/QueueItem"
+                $ref: "#/components/schemas/WorkItem"
         "404":
           description: The work queue item was not found
         "500":
           description: An internal server error
-  
     post:
       summary: Add a new work queue item on the specified queue
       description: Add a new work queue itemt on the specified queue by queue ID
@@ -171,83 +258,45 @@ paths:
                 name:
                   type: string
                   description: The name of the new queue item
-                  example: my-new-queue-item
+                  example: a-new-queue-item
                 description:
                   type: string
                   description: A description of the new queue item
-                  example: This is my new work queue item
+                  example: This is a new work queue item
+                status:
+                  type: string
+                  description: Work item status (OPEN, LOCKED, PROCESSED, DELETED)
+                  example: OPEN
               required:
                 - name
+                - description
+                - status
       responses:
         "201":
           description: The work queue item was added successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/QueueItem"
+                $ref: "#/components/schemas/WorkItem"
         "400":
           description: The request was invalid
         "404":
-          description: The work queue was not found
+          description: The work was not found
         "500":
           description: An internal server error
-  /wqm/queues/{queue_id}/items/next:
-    get:
-      summary: Get next open work queue items by queue type
-      description: Retrieve next open work queue item by queue ID based on queue type. This will also lock the item so it will not be selected again.
-      tags:
-        - Work Items
-      parameters:
-        - name: queue_id
-          in: path
-          description: The ID of the work queue
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: A successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/QueueItem"
-        "404":
-          description: The work queue item was not found
-        "500":
-          description: An internal server error
-
-  /wqm/queues/{queue_id}/items/lock:
-    get:
-      summary: Get a list of locked work queue items
-      description: Retrieve all locked work queue item by queue ID
-      tags:
-        - Work Items
-      parameters:
-        - name: queue_id
-          in: path
-          description: The ID of the work queue
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: A successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/QueueItem"
-        "404":
-          description: The work queue item was not found
-        "500":
-          description: An internal server error
-
-  /wqm/items/{item_id}:
+  /wqm/queues/{queue_id}/items/{item_id}:
     put:
       summary: Update an existing work queue item
       description: Update an existing work queue item with the specified item ID
       tags:
         - Work Items
       parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue to update the item in
+          required: true
+          schema:
+            type: integer
         - name: item_id
           in: path
           description: The ID of the work queue item to update
@@ -264,24 +313,28 @@ paths:
                 name:
                   type: string
                   description: The new name of the work queue item
-                  example: my-updated-queue-item
+                  example: updated-queue-item
                 description:
                   type: string
                   description: The new description of the work queue item
                   example: This is my updated work queue item
+                status:
+                  type: string
+                  description: Work item status (OPEN, LOCKED, PROCESSED, DELETED)
+                  example: OPEN
               required:
-                - name
+                - status
       responses:
         "200":
-          description: The work queue item was updated successfully
+          description: The work item was updated successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/QueueItem"
+                $ref: "#/components/schemas/WorkItem"
         "400":
           description: The request was invalid
         "404":
-          description: The work queue item was not found
+          description: The work item was not found
         "500":
           description: An internal server error
 
@@ -291,70 +344,32 @@ paths:
       tags:
         - Work Items
       parameters:
+        - name: queue_id
+          in: path
+          description: The ID of the work queue to delete the item from
+          required: true
+          schema:
+            type: integer
         - name: item_id
           in: path
-          description: The ID of the work queue item to delete
+          description: The ID of the work item to delete
           required: true
           schema:
             type: integer
       responses:
         "204":
-          description: The work queue item was deleted successfully
+          description: The work item was deleted successfully
         "404":
-          description: The work queue item was not found
+          description: The work item was not found
         "500":
           description: An internal server error
-
-  /wqm/items/{item_id}/lock:
-    put:
-      summary: Toggle work queue item lock
-      description: Toggle work queue item with the specified item ID
-      tags:
-        - Work Items
-      parameters:
-        - name: item_id
-          in: path
-          description: The ID of the work queue item to update
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: The new name of the work queue item
-                  example: my-updated-queue-item
-                description:
-                  type: string
-                  description: The new description of the work queue item
-                  example: This is my updated work queue item
-              required:
-                - name
-      responses:
-        "200":
-          description: The work queue item was updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/QueueItem"
-        "400":
-          description: The request was invalid
-        "404":
-          description: The work queue item was not found
-        "500":
-          description: An internal server error
-
-  /wqm/items/search:
+# Search
+  /wqm/search:
     get:
       summary: Search for work items
       description: Search for work items by name or description
       tags:
-        - Work Items
+        - Search
       parameters:
         - name: queue_id
           in: query
@@ -376,12 +391,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/QueueItem"
+                  $ref: "#/components/schemas/WorkItem"
         "400":
           description: The request was invalid
         "500":
           description: An internal server error
-
+# Components
 components:
   schemas:
     Queue:
@@ -398,12 +413,17 @@ components:
         description:
           type: string
           description: A description of the queue
-          example: This is a new work queue
+          example: This is a work queue
         queue_type:
           type: string
           description: The queue read order LIFO or FIFO or NONE
           example: FIFO
-    QueueItem:
+        status:
+          type: string
+          description: The status of the work queue
+          example: ACTIVE
+
+    WorkItem:
       type: object
       properties:
         item_id:
@@ -412,11 +432,17 @@ components:
           example: 1
         name:
           type: string
-          description: The name of the work queue item
-          example: my-work-item
+          description: The name of the work item
+          example: work-item
         description:
           type: string
-          description: A description of the work queue item
-          example: This is my new work queue item
+          description: A description of the work item
+          example: This is a work item 
+        status:
+          type: string
+          description: The status of the work item
+          example: OPEN
+
+# Path: wqm.yaml
   
   
