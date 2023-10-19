@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Work Queue Manager API
-  description: Servics to abstract the work queue manager
+  title: Work Queue Management API
+  description: Servics to abstract the work queue(s) and work item(s) management
   version: 1.0.0
 servers:
   - url: http://localhost:8000
