@@ -1,2 +1,2 @@
-# wqm
-Work Queue Manager API
+# WQM
+Work Queue and Work Item Management API
