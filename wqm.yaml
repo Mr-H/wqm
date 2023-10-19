@@ -42,6 +42,7 @@ paths:
               - LIFO
               - FIFO
               - NONE
+            default: FIFO
         - name: status
           in: query
           description: Status of the queues (ACTIVE, DELETED)
@@ -51,6 +52,7 @@ paths:
             enum:
               - ACTIVE
               - DELETED
+            default: ACTIVE
       responses:
         "200":
           description: A successful response
@@ -216,15 +218,18 @@ paths:
               - OPEN
               - LOCKED
               - PROCESSED
-              - DELETED
+              - DELETED 
+            default: OPEN
         - name: lock
           in: query
-          description: Lock work item(s) (LOCK)
+          description: Lock work item(s) (LOCK, UNLOCK)
           required: false
           schema:
             type: string
             enum:
               - LOCK
+              - UNLOCK
+            default: LOCK
       responses:
         "200":
           description: A successful response
