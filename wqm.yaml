@@ -20,9 +20,9 @@ paths:
           required: false
           schema:
             type: integer
-            minimum: 10
-            maximum: 100
-            default: 20
+            minimum: 1
+            #maximum: 100
+            #default: 20
         - name: page
           in: query
           description: The number of the page
@@ -30,8 +30,8 @@ paths:
           schema:
             type: integer
             minimum: 1
-            maximum: 100
-            default: 1
+            #maximum: 100
+            #default: 1
         - name: queue_type
           in: query
           description: The type of the queue (LIFO, FIFO, NONE)
@@ -43,7 +43,7 @@ paths:
               - FIFO
               - NONE
             default: FIFO
-        - name: status
+        - name: queue_status
           in: query
           description: Status of the queues (ACTIVE, DELETED)
           required: false
@@ -76,11 +76,11 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                queue_name:
                   type: string
                   description: The name of the new work queue
                   example: a-queue
-                description:
+                queue_desc:
                   type: string
                   description: A description of the new work queue
                   example: This is my new work queue
@@ -88,15 +88,15 @@ paths:
                   type: string
                   description: The type of the queue (LIFO, FIFO, NONE)
                   example: LIFO
-                statue:
+                queue_statue:
                   type: string
                   description: The status of the new work queue
                   example: ACTIVE
               required:
-                - name
-                - description
+                - queue_name
+                - queue_desc
                 - queue_type
-                - status
+                - queue_status
       responses:
         "201":
           description: The work queue was created successfully
@@ -128,11 +128,11 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                queue_name:
                   type: string
                   description: The new name of the work queue
                   example: an-updated-queue
-                description:
+                queue_desc:
                   type: string
                   description: The new description of the work queue
                   example: This is an updated work queue
@@ -140,7 +140,7 @@ paths:
                   type: string
                   description: The type of the queue (LIFO, FIFO, NONE)
                   example: LIFO
-                status: 
+                queue_status: 
                   type: string
                   description: The new status of the work queue
                   example: ACTIVE
@@ -197,8 +197,8 @@ paths:
           schema:
             type: integer
             minimum: 1
-            maximum: 100
-            default: 20
+            #maximum: 100
+            #default: 20
         - name: page
           in: query
           description: The number of the page
@@ -206,9 +206,9 @@ paths:
           schema:
             type: integer
             minimum: 1
-            maximum: 100
-            default: 1
-        - name: status
+            #maximum: 100
+            #default: 1
+        - name: item_status
           in: query
           description: Status of the work items (OPEN, LOCKED, PROCESSED, DELETED)
           required: true
@@ -220,7 +220,7 @@ paths:
               - PROCESSED
               - DELETED 
             default: OPEN
-        - name: lock
+        - name: item_lock
           in: query
           description: Lock work item(s) (LOCK, UNLOCK)
           required: false
@@ -260,22 +260,22 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                item_name:
                   type: string
                   description: The name of the new queue item
                   example: a-new-queue-item
-                description:
+                item_desc:
                   type: string
                   description: A description of the new queue item
                   example: This is a new work queue item
-                status:
+                item_status:
                   type: string
                   description: Work item status (OPEN, LOCKED, PROCESSED, DELETED)
                   example: OPEN
               required:
-                - name
-                - description
-                - status
+                - item_name
+                - item_desc
+                - item_status
       responses:
         "201":
           description: The work queue item was added successfully
@@ -315,20 +315,20 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                item_name:
                   type: string
                   description: The new name of the work queue item
                   example: updated-queue-item
-                description:
+                item_desc:
                   type: string
                   description: The new description of the work queue item
                   example: This is my updated work queue item
-                status:
+                item_status:
                   type: string
                   description: Work item status (OPEN, LOCKED, PROCESSED, DELETED)
                   example: OPEN
               required:
-                - status
+                - item_status
       responses:
         "200":
           description: The work item was updated successfully
@@ -401,6 +401,7 @@ paths:
           description: The request was invalid
         "500":
           description: An internal server error
+
 # Components
 components:
   schemas:
@@ -411,11 +412,11 @@ components:
           type: integer
           description: The unique identifier for the queue
           example: 1
-        name:
+        queue_name:
           type: string
           description: The name of the queue
           example: a-queue
-        description:
+        queue_desc:
           type: string
           description: A description of the queue
           example: This is a work queue
@@ -423,7 +424,7 @@ components:
           type: string
           description: The queue read order LIFO or FIFO or NONE
           example: FIFO
-        status:
+        queue_status:
           type: string
           description: The status of the work queue
           example: ACTIVE
@@ -435,18 +436,22 @@ components:
           type: integer
           description: The unique identifier for the work queue item
           example: 1
-        name:
+        item_name:
           type: string
           description: The name of the work item
           example: work-item
-        description:
+        item_desc:
           type: string
           description: A description of the work item
           example: This is a work item 
-        status:
+        item_status:
           type: string
           description: The status of the work item
           example: OPEN
+        item_lock:
+          type: string
+          description: The work item lock
+          example: UNLOCKED
 
 # Path: wqm.yaml
   
