@@ -18,7 +18,7 @@ npm install @openapitools/openapi-generator-cli -g
 ```bash
 
 openapi-generator-cli generate -g spring --additional-properties=prependFormOrBodyParameters=true \
-    -o generated-wqm-api-npm -i wqm.yaml
+    -o generated-wqm-api-npm -i wqm.yaml --api-package com.example.wqm
 
 ```
 
@@ -34,7 +34,7 @@ wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/6.6.0
 ```bash
 
 java -jar openapi-generator-cli.jar generate -g spring --additional-properties=prependFormOrBodyParameters=true \
-    -o generated-wqm-api-jar -i wqm.yaml
+    -o generated-wqm-api-jar -i wqm.yaml --api-package com.example.wqm 
 
 ```
 
@@ -42,6 +42,8 @@ java -jar openapi-generator-cli.jar generate -g spring --additional-properties=p
 5. Maven - clean install
 6. Spring Boot - run
 7. Go to localhost:8000
+
+(examples in /generated folder for both generations)
 
 ## MVN Plugin
 
