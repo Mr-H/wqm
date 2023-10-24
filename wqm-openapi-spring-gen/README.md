@@ -49,3 +49,5 @@ java -jar openapi-generator-cli.jar generate -g spring --additional-properties=p
 
 TODO: as part of a project
 
+1. generate a spring MVC project from start.spring.io
+2. 
