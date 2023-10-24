@@ -1,0 +1,477 @@
+openapi: 3.1.0
+info:
+  description: Servics to abstract the work queue(s) and work item(s) management
+  title: Work Queue Management API
+  version: 1.0.0
+servers:
+- url: http://localhost:8000
+paths:
+  /wqm/queues:
+    get:
+      description: Retrieve a list of all queue IDs and Names
+      parameters:
+      - description: The number of items per page
+        explode: true
+        in: query
+        name: per_page
+        required: false
+        schema:
+          minimum: 1
+        style: form
+      - description: The number of the page
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          minimum: 1
+        style: form
+      - description: "The type of the queue (LIFO, FIFO, NONE)"
+        explode: true
+        in: query
+        name: queue_type
+        required: false
+        schema:
+          default: FIFO
+          enum:
+          - LIFO
+          - FIFO
+          - NONE
+        style: form
+      - description: "Status of the queues (ACTIVE, DELETED)"
+        explode: true
+        in: query
+        name: queue_status
+        required: false
+        schema:
+          default: ACTIVE
+          enum:
+          - ACTIVE
+          - DELETED
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Queue'
+          description: A successful response
+        "500":
+          description: An internal server error
+      summary: Get a list of all work queues
+      tags:
+      - Work Queues
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Queues
+    post:
+      description: Create a new work queue with the specified name and description
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_wqm_queues_post_request'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queue'
+          description: The work queue was created successfully
+        "400":
+          description: The request was invalid
+        "500":
+          description: An internal server error
+      summary: Create a new work queue
+      tags:
+      - Work Queues
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Queues
+  /wqm/queues/{queue_id}:
+    delete:
+      description: Soft delete an existing work queue with the specified ID
+      parameters:
+      - description: "The ID of the work queue, changing status to DELETED"
+        explode: false
+        in: path
+        name: queue_id
+        required: true
+        schema: {}
+        style: simple
+      responses:
+        "204":
+          description: The work queue was deleted successfully
+        "404":
+          description: The work queue was not found
+        "500":
+          description: An internal server error
+      summary: Soft delete an existing work queue
+      tags:
+      - Work Queues
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Queues
+    put:
+      description: Update an existing work queue with the specified ID
+      parameters:
+      - description: The ID of the work queue to update
+        explode: false
+        in: path
+        name: queue_id
+        required: true
+        schema: {}
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_wqm_queues__queue_id__put_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queue'
+          description: The work queue was updated successfully
+        "400":
+          description: The request was invalid
+        "404":
+          description: The work queue was not found
+        "500":
+          description: An internal server error
+      summary: Update an existing work queue
+      tags:
+      - Work Queues
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Queues
+  /wqm/queues/{queue_id}/items:
+    get:
+      description: Retrieve all open work queue item by queue ID
+      parameters:
+      - description: The ID of the work queue
+        explode: false
+        in: path
+        name: queue_id
+        required: true
+        schema: {}
+        style: simple
+      - description: The number of items per page
+        explode: true
+        in: query
+        name: per_page
+        required: false
+        schema:
+          minimum: 1
+        style: form
+      - description: The number of the page
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          minimum: 1
+        style: form
+      - description: "Status of the work items (OPEN, LOCKED, PROCESSED, DELETED)"
+        explode: true
+        in: query
+        name: item_status
+        required: true
+        schema:
+          default: OPEN
+          enum:
+          - OPEN
+          - LOCKED
+          - PROCESSED
+          - DELETED
+        style: form
+      - description: "Lock work item(s) (LOCK, UNLOCK)"
+        explode: true
+        in: query
+        name: item_lock
+        required: false
+        schema:
+          default: LOCK
+          enum:
+          - LOCK
+          - UNLOCK
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkItem'
+          description: A successful response
+        "404":
+          description: The work queue item was not found
+        "500":
+          description: An internal server error
+      summary: Get a list of open work queue items
+      tags:
+      - Work Items
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Items
+    post:
+      description: Add a new work queue itemt on the specified queue by queue ID
+      parameters:
+      - description: The ID of the work queue to add the item to
+        explode: false
+        in: path
+        name: queue_id
+        required: true
+        schema: {}
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_wqm_queues__queue_id__items_post_request'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkItem'
+          description: The work queue item was added successfully
+        "400":
+          description: The request was invalid
+        "404":
+          description: The work was not found
+        "500":
+          description: An internal server error
+      summary: Add a new work queue item on the specified queue
+      tags:
+      - Work Items
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Items
+  /wqm/queues/{queue_id}/items/{item_id}:
+    delete:
+      description: Soft delete an existing work queue item with the specified item
+        ID
+      parameters:
+      - description: The ID of the work queue to delete the item from
+        explode: false
+        in: path
+        name: queue_id
+        required: true
+        schema: {}
+        style: simple
+      - description: The ID of the work item to delete
+        explode: false
+        in: path
+        name: item_id
+        required: true
+        schema: {}
+        style: simple
+      responses:
+        "204":
+          description: The work item was deleted successfully
+        "404":
+          description: The work item was not found
+        "500":
+          description: An internal server error
+      summary: Soft delete an existing work queue item
+      tags:
+      - Work Items
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Items
+    put:
+      description: Update an existing work queue item with the specified item ID
+      parameters:
+      - description: The ID of the work queue to update the item in
+        explode: false
+        in: path
+        name: queue_id
+        required: true
+        schema: {}
+        style: simple
+      - description: The ID of the work queue item to update
+        explode: false
+        in: path
+        name: item_id
+        required: true
+        schema: {}
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_wqm_queues__queue_id__items__item_id__put_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkItem'
+          description: The work item was updated successfully
+        "400":
+          description: The request was invalid
+        "404":
+          description: The work item was not found
+        "500":
+          description: An internal server error
+      summary: Update an existing work queue item
+      tags:
+      - Work Items
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: Work Items
+  /wqm/search:
+    get:
+      description: Search for work items by name or description
+      parameters:
+      - description: The ID of the work queue to search in
+        explode: true
+        in: query
+        name: queue_id
+        required: false
+        schema: {}
+        style: form
+      - description: The search query to use
+        explode: true
+        in: query
+        name: search_query
+        required: true
+        schema: {}
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkItem'
+          description: The search results were retrieved successfully
+        "400":
+          description: The request was invalid
+        "500":
+          description: An internal server error
+      summary: Search for work items
+      tags:
+      - Search
+      x-accepts: application/json
+      x-tags:
+      - tag: Search
+components:
+  schemas:
+    Queue:
+      example:
+        queue_name: a-queue
+        queue_type: FIFO
+        queue_status: ACTIVE
+        queue_desc: This is a work queue
+        queue_id: 1
+      properties:
+        queue_id:
+          description: The unique identifier for the queue
+          example: 1
+        queue_name:
+          description: The name of the queue
+          example: a-queue
+        queue_desc:
+          description: A description of the queue
+          example: This is a work queue
+        queue_type:
+          description: The queue read order LIFO or FIFO or NONE
+          example: FIFO
+        queue_status:
+          description: The status of the work queue
+          example: ACTIVE
+    WorkItem:
+      example:
+        item_desc: This is a work item
+        item_id: 1
+        item_name: work-item
+        item_lock: UNLOCKED
+        item_status: OPEN
+      properties:
+        item_id:
+          description: The unique identifier for the work queue item
+          example: 1
+        item_name:
+          description: The name of the work item
+          example: work-item
+        item_desc:
+          description: A description of the work item
+          example: This is a work item
+        item_status:
+          description: The status of the work item
+          example: OPEN
+        item_lock:
+          description: The work item lock
+          example: UNLOCKED
+    _wqm_queues_post_request:
+      properties:
+        queue_name:
+          description: The name of the new work queue
+          example: a-queue
+        queue_desc:
+          description: A description of the new work queue
+          example: This is my new work queue
+        queue_type:
+          description: "The type of the queue (LIFO, FIFO, NONE)"
+          example: LIFO
+        queue_statue:
+          description: The status of the new work queue
+          example: ACTIVE
+      required:
+      - queue_desc
+      - queue_name
+      - queue_status
+      - queue_type
+    _wqm_queues__queue_id__put_request:
+      properties:
+        queue_name:
+          description: The new name of the work queue
+          example: an-updated-queue
+        queue_desc:
+          description: The new description of the work queue
+          example: This is an updated work queue
+        queue_type:
+          description: "The type of the queue (LIFO, FIFO, NONE)"
+          example: LIFO
+        queue_status:
+          description: The new status of the work queue
+          example: ACTIVE
+    _wqm_queues__queue_id__items_post_request:
+      properties:
+        item_name:
+          description: The name of the new queue item
+          example: a-new-queue-item
+        item_desc:
+          description: A description of the new queue item
+          example: This is a new work queue item
+        item_status:
+          description: "Work item status (OPEN, LOCKED, PROCESSED, DELETED)"
+          example: OPEN
+      required:
+      - item_desc
+      - item_name
+      - item_status
+    _wqm_queues__queue_id__items__item_id__put_request:
+      properties:
+        item_name:
+          description: The new name of the work queue item
+          example: updated-queue-item
+        item_desc:
+          description: The new description of the work queue item
+          example: This is my updated work queue item
+        item_status:
+          description: "Work item status (OPEN, LOCKED, PROCESSED, DELETED)"
+          example: OPEN
+      required:
+      - item_status

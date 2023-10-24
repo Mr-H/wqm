@@ -1,0 +1,13 @@
+org/openapitools/model/WqmQueuesQueueIdItemsItemIdPutRequest.class
+com/example/wqm/ApiUtil.class
+org/openapitools/model/Queue.class
+org/openapitools/configuration/HomeController.class
+com/example/wqm/WqmApi.class
+org/openapitools/RFC3339DateFormat.class
+org/openapitools/model/WorkItem.class
+org/openapitools/model/WqmQueuesQueueIdItemsPostRequest.class
+org/openapitools/configuration/SpringDocConfiguration.class
+org/openapitools/OpenApiGeneratorApplication.class
+com/example/wqm/WqmApiController.class
+org/openapitools/model/WqmQueuesQueueIdPutRequest.class
+org/openapitools/model/WqmQueuesPostRequest.class
