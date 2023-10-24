@@ -19,21 +19,23 @@
 
     5.1 Remove this dependency
 
-```xml
-<dependency>
-    <groupId>org.springdoc</groupId>
-    <artifactId>springdoc-openapi-ui</artifactId>
-    <version>${springdoc.version}</version>
-</dependency>
-```
+        ```xml
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+        ```
+   
     5.2 Add this dependency
-```xml
- <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>${springdoc.version}</version>
-</dependency>
-```
+   
+        ```xml
+         <dependency>
+              <groupId>org.springdoc</groupId>
+              <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+              <version>${springdoc.version}</version>
+        </dependency>
+        ```
 
-6. Replace references for javax.annotation with jakarta.annotation
-7. Replace references for javax.servlet.http to jakarta.servlet.http
+7. Replace references for javax.annotation with jakarta.annotation
+8. Replace references for javax.servlet.http to jakarta.servlet.http
